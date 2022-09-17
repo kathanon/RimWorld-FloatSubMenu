@@ -1,0 +1,81 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="15.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <!-- Setup properties -->
+  <PropertyGroup>
+    <Steam Condition="'$(Steam)' == ''">C:\Program Files\Steam</Steam>
+    <RimWorld>$(Steam)\steamapps\common\RimWorld</RimWorld>
+    <ModsDir>$(RimWorld)\Mods</ModsDir>
+    <OutputPath>$(ModsDir)\$(ModName)</OutputPath>
+    <AssembliesSubDir>Assemblies</AssembliesSubDir>
+    <AssembliesDir>$(OutputPath)\$(AssembliesSubDir)</AssembliesDir>
+    <ModFiles>..\ModFiles</ModFiles>
+    <ModsList>$(LocalAppData)Low\Ludeon Studios\RimWorld by Ludeon Studios\Config\ModsConfig.xml</ModsList>
+  </PropertyGroup>
+  
+  <!-- Alter standard stuff -->
+  <PropertyGroup>
+    <RootNamespace>$(ModName)</RootNamespace>
+    <AssemblyName>$(ModName)</AssemblyName>
+    <StartAction>Program</StartAction>
+    <StartProgram>$(RimWorld)\RimWorldWin64.exe</StartProgram>
+  </PropertyGroup>
+  <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
+  
+  <!-- Pre-build steps -->
+  <PropertyGroup>
+    <SteamIdFile>About\PublishedFileId.txt</SteamIdFile>
+    <SteamIdFileDir>About</SteamIdFileDir>
+    <CopyBackFrom>$(OutputPath)\$(SteamIdFile)</CopyBackFrom>
+    <CopyBackTo>$(ModFiles)\$(SteamIdFile)</CopyBackTo>
+    <CopyBackDir>$(ModFiles)\$(SteamIdFileDir)</CopyBackDir>
+  </PropertyGroup>
+  <Target Name="BeforeBuild" Condition="Exists('$(CopyBackFrom)') And !Exists('$(CopyBackTo)')">
+    <!-- Make sure that the file that the game adds when a mod is published on Steam is copied back to source -->
+    <Message Text="Copying mod ID file from mod folder back to $(CopyBackTo)" Importance="high" />
+    <Copy SourceFiles="$(CopyBackFrom)" DestinationFolder="$(CopyBackDir)" />
+  </Target>
+  
+  <!-- Post-build steps -->
+  <Target Name="AfterBuild">
+    <!-- Move DLL to correct subfolder and make sure mod is active in RimWorld -->
+    <Message Text="Moving $(TargetFileName) -&gt; $(AssembliesSubDir)\$(TargetFileName) ($(DebugSymbolsFile))" Importance="high" />
+    <MakeDir Directories="$(AssembliesDir)" />
+    <Move SourceFiles="$(TargetPath)" DestinationFolder="$(AssembliesDir)" />
+    <!-- Make sure mod is active in RimWorld -->
+    <InsertLineIfNotPresent FilePath="$(ModsList)" BeforeLine="&lt;/activeMods&gt;" InsertLine="    &lt;li&gt;$(ModId.ToLower())&lt;/li&gt;" />
+  </Target>
+  <!-- Used to add mod to active set in game -->
+  <UsingTask TaskName="InsertLineIfNotPresent" TaskFactory="CodeTaskFactory" AssemblyFile="$(MSBuildToolsPath)\Microsoft.Build.Tasks.v4.0.dll">
+    <ParameterGroup>
+      <FilePath ParameterType="System.String" Required="true" />
+      <BeforeLine ParameterType="System.String" Required="true" />
+      <InsertLine ParameterType="System.String" Required="true" />
+    </ParameterGroup>
+    <Task>
+      <Using Namespace="System" />
+      <Using Namespace="System.IO" />
+      <Code Type="Fragment" Language="cs"><![CDATA[
+            if (File.Exists(FilePath))
+            {
+                bool lookInsert = true, lookBefore = true;
+                String insert = InsertLine.Trim(), before = BeforeLine.Trim();
+                List<String> lines = new List<String>();
+                foreach (String line in File.ReadAllLines(FilePath))
+                {
+                    if (lookBefore) { 
+                        if (lookInsert && line.Trim() == insert) {
+                            lookInsert = false;
+                        } else if (line.Trim() == before) {
+                            if (lookInsert) lines.Add(InsertLine);
+                            lookBefore = false;
+                        }
+                    }
+                    lines.Add(line);
+                }
+                if (!lookBefore && lookInsert) File.WriteAllLines(FilePath, lines);
+            }
+            return true;
+            ]]></Code>
+    </Task>
+  </UsingTask>
+</Project>
