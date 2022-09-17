@@ -41,6 +41,9 @@
     <Reference Include="UnityEngine.UI" Private="False">
       <HintPath>$(RimWorld)\RimWorldWin64_Data\Managed\UnityEngine.UI.dll</HintPath>
     </Reference>
+    <Reference Include="0Harmony, Version=2.2.2.0, Culture=neutral, processorArchitecture=MSIL" Private="False">
+      <HintPath>..\packages\Lib.Harmony.2.2.2\lib\net472\0Harmony.dll</HintPath>
+    </Reference>
     <!-- Other Dlls -->
     <Reference Include="System" />
     <Reference Include="System.Core" />
@@ -51,6 +54,7 @@
   </ItemGroup>
   <!-- Project files -->
   <ItemGroup>
+    <Compile Include="Patches.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="FloatSubMenu.cs" />
   </ItemGroup>
@@ -59,5 +63,6 @@
     <None Include="$(ModFiles)\**" CopyToOutputDirectory="PreserveNewest">
       <Link>%(RecursiveDir)%(Filename)%(Extension)</Link>
     </None>
+    <None Include="packages.config" />
   </ItemGroup>
 </Project>
