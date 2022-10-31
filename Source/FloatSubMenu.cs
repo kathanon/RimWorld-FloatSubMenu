@@ -2,12 +2,18 @@
 using RimWorld.Planet;
 using System;
 using System.Collections.Generic;
+using System.IO;
 using System.Linq;
 using System.Reflection;
 using UnityEngine;
 using Verse;
 
 namespace FloatSubMenus {
+
+#if VERSION_1_3
+    public enum HorizontalJustification { Left, Right }
+#endif
+
     public class FloatSubMenu : FloatMenuOption {
         private readonly List<FloatMenuOption> subOptions;
         private readonly float extraPartWidthOuter;
@@ -17,6 +23,7 @@ namespace FloatSubMenus {
         private Action parentCloseCallback = null;
         private bool parentSetUp = false;
         private bool subMenuOptionChosen = false;
+        private bool subOptionsInitialized = false;
         private Rect extraGUIRect = new Rect(-1f, -1f, 0f, 0f);
 
         private static readonly Vector2 MenuOffset = new Vector2(-1f, 0f);
@@ -25,24 +32,99 @@ namespace FloatSubMenus {
         private const float ArrowOffset = 4f;
         private const float ArrowAlpha = 0.6f;
 
-        public FloatSubMenu(string label, List<FloatMenuOption> subOptions, MenuOptionPriority priority = MenuOptionPriority.Default, Thing revalidateClickTarget = null, float extraPartWidth = 0, Func<Rect, bool> extraPartOnGUI = null, WorldObject revalidateWorldClickTarget = null, bool playSelectionSound = true, int orderInPriority = 0)
-            : base(label, NoAction, priority, null, revalidateClickTarget, extraPartWidth + ArrowExtraWidth, null, revalidateWorldClickTarget, playSelectionSound, orderInPriority) {
+        public FloatSubMenu(string label,
+                            List<FloatMenuOption> subOptions,
+                            MenuOptionPriority priority = MenuOptionPriority.Default,
+                            Thing revalidateClickTarget = null,
+                            float extraPartWidth = 0,
+                            Func<Rect, bool> extraPartOnGUI = null,
+                            WorldObject revalidateWorldClickTarget = null,
+                            bool playSelectionSound = true,
+                            int orderInPriority = 0)
+            : base(label: label,
+                   action: NoAction,
+                   priority: priority,
+                   mouseoverGuiAction: null,
+                   revalidateClickTarget: revalidateClickTarget,
+                   extraPartWidth: extraPartWidth + ArrowExtraWidth,
+                   extraPartOnGUI: null,
+                   revalidateWorldClickTarget: revalidateWorldClickTarget,
+                   playSelectionSound: playSelectionSound,
+                   orderInPriority: orderInPriority) {
             this.subOptions = subOptions;
             extraPartOnGUIOuter = extraPartOnGUI;
             extraPartWidthOuter = extraPartWidth;
             this.extraPartOnGUI = DrawExtra;
         }
 
-        public FloatSubMenu(string label, List<FloatMenuOption> subOptions, ThingDef shownItemForIcon, MenuOptionPriority priority = MenuOptionPriority.Default, Thing revalidateClickTarget = null, float extraPartWidth = 0, Func<Rect, bool> extraPartOnGUI = null, WorldObject revalidateWorldClickTarget = null, bool playSelectionSound = true, int orderInPriority = 0)
-            : base(label, NoAction, shownItemForIcon, priority, null, revalidateClickTarget, extraPartWidth + ArrowExtraWidth, null, revalidateWorldClickTarget, playSelectionSound, orderInPriority) {
+        public FloatSubMenu(string label,
+                            List<FloatMenuOption> subOptions,
+                            ThingDef shownItemForIcon,
+                            ThingStyleDef thingStyle = null, 
+                            bool forceBasicStyle = false, 
+                            MenuOptionPriority priority = MenuOptionPriority.Default,
+                            Thing revalidateClickTarget = null,
+                            float extraPartWidth = 0,
+                            Func<Rect, bool> extraPartOnGUI = null,
+                            WorldObject revalidateWorldClickTarget = null,
+                            bool playSelectionSound = true,
+                            int orderInPriority = 0, 
+                            int? graphicIndexOverride = null)
+            : base(label: label,
+                   action: NoAction,
+                   shownItemForIcon: shownItemForIcon,
+#if !VERSION_1_3
+                   thingStyle: thingStyle,
+                   forceBasicStyle: forceBasicStyle,
+#endif
+                   priority: priority,
+                   mouseoverGuiAction: null,
+                   revalidateClickTarget: revalidateClickTarget,
+                   extraPartWidth: extraPartWidth + ArrowExtraWidth,
+                   extraPartOnGUI: null,
+                   revalidateWorldClickTarget: revalidateWorldClickTarget,
+                   playSelectionSound: playSelectionSound,
+                   orderInPriority: orderInPriority
+#if !VERSION_1_3
+                   , graphicIndexOverride: graphicIndexOverride
+#endif
+                  ) {
             this.subOptions = subOptions;
             extraPartOnGUIOuter = extraPartOnGUI;
             extraPartWidthOuter = extraPartWidth;
             this.extraPartOnGUI = DrawExtra;
         }
 
-        public FloatSubMenu(string label, List<FloatMenuOption> subOptions, Texture2D itemIcon, Color iconColor, MenuOptionPriority priority = MenuOptionPriority.Default, Thing revalidateClickTarget = null, float extraPartWidth = 0, Func<Rect, bool> extraPartOnGUI = null, WorldObject revalidateWorldClickTarget = null, bool playSelectionSound = true, int orderInPriority = 0)
-            : base(label, NoAction, itemIcon, iconColor, priority, null, revalidateClickTarget, extraPartWidth + ArrowExtraWidth, null, revalidateWorldClickTarget, playSelectionSound, orderInPriority) {
+        public FloatSubMenu(string label,
+                            List<FloatMenuOption> subOptions,
+                            Texture2D itemIcon,
+                            Color iconColor,
+                            MenuOptionPriority priority = MenuOptionPriority.Default,
+                            Thing revalidateClickTarget = null,
+                            float extraPartWidth = 0,
+                            Func<Rect, bool> extraPartOnGUI = null,
+                            WorldObject revalidateWorldClickTarget = null,
+                            bool playSelectionSound = true,
+                            int orderInPriority = 0,
+                            HorizontalJustification iconJustification = HorizontalJustification.Left, 
+                            bool extraPartRightJustified = false)
+            : base(label: label,
+                   action: NoAction,
+                   itemIcon: itemIcon,
+                   iconColor: iconColor,
+                   priority: priority,
+                   mouseoverGuiAction: null,
+                   revalidateClickTarget: revalidateClickTarget,
+                   extraPartWidth: extraPartWidth + ArrowExtraWidth,
+                   extraPartOnGUI: null,
+                   revalidateWorldClickTarget: revalidateWorldClickTarget,
+                   playSelectionSound: playSelectionSound,
+                   orderInPriority: orderInPriority
+#if !VERSION_1_3
+                   , iconJustification: iconJustification,
+                   extraPartRightJustified: extraPartRightJustified
+#endif
+                  ) {
             this.subOptions = subOptions;
             extraPartOnGUIOuter = extraPartOnGUI;
             extraPartWidthOuter = extraPartWidth;
@@ -75,6 +157,10 @@ namespace FloatSubMenus {
         }
 
         public override bool DoGUI(Rect rect, bool colonistOrdering, FloatMenu floatMenu) {
+            if (floatMenu == null) {
+                return base.DoGUI(rect, colonistOrdering, floatMenu);
+            }
+
             SetupParent(floatMenu);
 
             MouseArea mouseArea = FindMouseArea(rect, floatMenu);
@@ -103,6 +189,24 @@ namespace FloatSubMenus {
         }
 
         public bool Open => subMenu != null && subMenu.IsOpen;
+
+        public List<FloatMenuOption> Options {
+            get {
+                if (!subOptionsInitialized) {
+                    var mode = subOptions.Count > 60 ? FloatMenuSizeMode.Tiny : FloatMenuSizeMode.Normal;
+                    subOptions.ForEach(o => o.SetSizeMode(mode));
+                    subOptions.Sort(OptionPriorityCmp);
+                    subOptionsInitialized = true;
+                }
+                return subOptions;
+            }
+        }
+
+        private static int OptionPriorityCmp(FloatMenuOption a, FloatMenuOption b) {
+            // Should sort decending, so flipped order
+            int res = (int) b.Priority - (int) a.Priority;
+            return (res != 0) ? res : b.orderInPriority - a.orderInPriority;
+        }
 
         internal static bool ShouldReplaceDistanceFor(FloatMenu menu, ref float distance) {
             var set = OpenMenuSet.For(menu);
@@ -159,6 +263,7 @@ namespace FloatSubMenus {
                     offset,
                     parentMenu.vanishIfMouseDistant);
                 SoundDefOf.FloatMenu_Open = sound;
+                subOptionsInitialized = true;
                 Find.WindowStack.Add(subMenu);
                 OpenMenuSet.Open(parentMenu, subMenu);
             }
