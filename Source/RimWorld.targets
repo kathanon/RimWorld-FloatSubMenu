@@ -4,7 +4,8 @@
   <PropertyGroup>
     <Steam Condition="'$(Steam)' == ''">C:\Program Files\Steam</Steam>
     <RimWorld>$(Steam)\steamapps\common\RimWorld</RimWorld>
-    <RimWorldVersion>$([System.IO.File]::ReadAllText("$(RimWorld)\Version.txt").Substring(0,3))</RimWorldVersion>
+    <RimWorldDlls>$(RimWorld)\RimWorldWin64_Data\Managed</RimWorldDlls>
+    <RimWorldVersion Condition="'$(RimWorldVersion)' == ''">$([System.IO.File]::ReadAllText("$(RimWorld)\Version.txt").Substring(0,3))</RimWorldVersion>
     <VersionConst>VERSION_$(RimWorldVersion.Replace(".","_"))</VersionConst>
     <DefineConstants>$(VersionConst)</DefineConstants>
     <ModsDir>$(RimWorld)\Mods</ModsDir>
@@ -15,6 +16,9 @@
     <ModFiles>..\ModFiles</ModFiles>
     <ModsList>$(LocalAppData)Low\Ludeon Studios\RimWorld by Ludeon Studios\Config\ModsConfig.xml</ModsList>
     <Workshop>$(Steam)\steamapps\workshop\content\294100</Workshop>
+    <HarmonyPath>$(Workshop)\2009463077\Current\Assemblies\0Harmony.dll</HarmonyPath>
+    <HugsLibPath>$(Workshop)\818773962\v$(RimWorldVersion)\Assemblies\HugsLib.dll</HugsLibPath>
+    <FloatSubMenuPath>$(Workshop)\2864015430\$(RimWorldVersion)\Assemblies\FloatSubMenu.dll</FloatSubMenuPath>
   </PropertyGroup>
 
   <!-- Alter standard stuff -->
@@ -34,13 +38,15 @@
     <CopyBackTo>$(ModFiles)\$(SteamIdFile)</CopyBackTo>
     <CopyBackDir>$(ModFiles)\$(SteamIdFileDir)</CopyBackDir>
   </PropertyGroup>
+
+  <!-- Pre-build steps -->
   <Target Name="BeforeBuild">
     <Message Text="Building for RimWorld $(RimWorldVersion)" Importance="high" />
-  </Target>
-  <Target Name="CopySteamId" AfterTargets="BeforeBuild" Condition="Exists('$(CopyBackFrom)') And !Exists('$(CopyBackTo)')">
     <!-- Make sure that the file that the game adds when a mod is published on Steam is copied back to source -->
-    <Message Text="Copying mod ID file from mod folder back to $(CopyBackTo)" Importance="high" />
-    <Copy SourceFiles="$(CopyBackFrom)" DestinationFolder="$(CopyBackDir)" />
+    <Message Text="Copying mod ID file from mod folder back to $(CopyBackTo)" Importance="high" 
+        Condition="Exists('$(CopyBackFrom)') And !Exists('$(CopyBackTo)')" />
+    <Copy SourceFiles="$(CopyBackFrom)" DestinationFolder="$(CopyBackDir)" 
+        Condition="Exists('$(CopyBackFrom)') And !Exists('$(CopyBackTo)')" />
   </Target>
   
   <!-- Post-build steps -->
@@ -52,6 +58,7 @@
     <!-- Make sure mod is active in RimWorld -->
     <InsertLineIfNotPresent FilePath="$(ModsList)" BeforeLine="&lt;/activeMods&gt;" InsertLine="    &lt;li&gt;$(ModId.ToLower())&lt;/li&gt;" />
   </Target>
+  
   <!-- Used to add mod to active set in game -->
   <UsingTask TaskName="InsertLineIfNotPresent" TaskFactory="CodeTaskFactory" AssemblyFile="$(MSBuildToolsPath)\Microsoft.Build.Tasks.v4.0.dll">
     <ParameterGroup>

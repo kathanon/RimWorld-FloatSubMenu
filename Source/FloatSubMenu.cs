@@ -15,11 +15,29 @@ namespace FloatSubMenus {
 #endif
 
     public class FloatSubMenu : FloatMenuOption {
+        private const string VUIE_ID = "vanillaexpanded.ui";
+        private const string Achtung_ID = "brrainz.achtung";
+
+        private static bool ModActive(string id) 
+            => LoadedModManager.RunningMods.Any(x => x.PackageId == id);
+
+        private static readonly bool VUIE    = ModActive(VUIE_ID);
+        private static readonly bool Achtung = ModActive(Achtung_ID);
+
+        private static readonly bool Compat =
+#if VERSION_1_3
+            VUIE;
+#else
+            false;
+#endif
+        private static readonly bool CompatMMM = Compat || Achtung;
+
         private readonly List<FloatMenuOption> subOptions;
         private readonly float extraPartWidthOuter;
         private readonly Func<Rect, bool> extraPartOnGUIOuter;
 
         private FloatSubMenuInner subMenu = null;
+        private FloatMenuFilter filter = null;
         private Action parentCloseCallback = null;
         private bool parentSetUp = false;
         private bool subMenuOptionChosen = false;
@@ -31,6 +49,98 @@ namespace FloatSubMenus {
         private const float ArrowExtraWidth = 16f;
         private const float ArrowOffset = 4f;
         private const float ArrowAlpha = 0.6f;
+
+        private static Action CompatSub(List<FloatMenuOption> subOption)
+            => () => Find.WindowStack.Add(new FloatMenu(subOption));
+
+
+        /// <summary>
+        /// Creates a new sub-menu using the constructor with the same arguments, 
+        /// unless any mods known to be incompatible are detected. In that case 
+        /// creates a normal menu option that opens the sub-menu as a new menu when 
+        /// clicked.
+        /// </summary>
+        /// 
+        /// Currently this applies to: 
+        ///  - Vanilla UI Expanded with RimWorld 1.3
+        public static FloatMenuOption CompatCreate(string label,
+                                                   List<FloatMenuOption> subOptions,
+                                                   MenuOptionPriority priority = MenuOptionPriority.Default,
+                                                   Thing revalidateClickTarget = null,
+                                                   float extraPartWidth = 0,
+                                                   Func<Rect, bool> extraPartOnGUI = null,
+                                                   WorldObject revalidateWorldClickTarget = null,
+                                                   bool playSelectionSound = true,
+                                                   int orderInPriority = 0) {
+            if (Compat) {
+                return new FloatMenuOption(
+                    label: label,
+                    action: CompatSub(subOptions),
+                    priority: priority,
+                    mouseoverGuiAction: null,
+                    revalidateClickTarget: revalidateClickTarget,
+                    extraPartWidth: extraPartWidth,
+                    extraPartOnGUI: extraPartOnGUI,
+                    revalidateWorldClickTarget: revalidateWorldClickTarget,
+                    playSelectionSound: playSelectionSound,
+                    orderInPriority: orderInPriority);
+            } else {
+                return new FloatSubMenu(
+                    label,
+                    subOptions,
+                    priority,
+                    revalidateClickTarget,
+                    extraPartWidth,
+                    extraPartOnGUI,
+                    revalidateWorldClickTarget,
+                    playSelectionSound,
+                    orderInPriority);
+            }
+        }
+
+        /// <summary>
+        /// Creates a new sub-menu using the constructor with the same arguments, 
+        /// unless any mods known to be incompatible with sub-menues in the menu 
+        /// created by FloatMenuMakerMap are detected. In that case creates a normal 
+        /// menu option that opens the sub-menu as a new menu when clicked.
+        /// </summary>
+        /// 
+        /// Currently this applies to: 
+        ///  - Vanilla UI Expanded with RimWorld 1.3
+        public static FloatMenuOption CompatMMMCreate(string label,
+                                                      List<FloatMenuOption> subOptions,
+                                                      MenuOptionPriority priority = MenuOptionPriority.Default,
+                                                      Thing revalidateClickTarget = null,
+                                                      float extraPartWidth = 0,
+                                                      Func<Rect, bool> extraPartOnGUI = null,
+                                                      WorldObject revalidateWorldClickTarget = null,
+                                                      bool playSelectionSound = true,
+                                                      int orderInPriority = 0) {
+            if (CompatMMM) {
+                return new FloatMenuOption(
+                    label: label,
+                    action: CompatSub(subOptions),
+                    priority: priority,
+                    mouseoverGuiAction: null,
+                    revalidateClickTarget: revalidateClickTarget,
+                    extraPartWidth: extraPartWidth,
+                    extraPartOnGUI: extraPartOnGUI,
+                    revalidateWorldClickTarget: revalidateWorldClickTarget,
+                    playSelectionSound: playSelectionSound,
+                    orderInPriority: orderInPriority);
+            } else {
+                return new FloatSubMenu(
+                    label,
+                    subOptions,
+                    priority,
+                    revalidateClickTarget,
+                    extraPartWidth,
+                    extraPartOnGUI,
+                    revalidateWorldClickTarget,
+                    playSelectionSound,
+                    orderInPriority);
+            }
+        }
 
         public FloatSubMenu(string label,
                             List<FloatMenuOption> subOptions,
@@ -55,6 +165,130 @@ namespace FloatSubMenus {
             extraPartOnGUIOuter = extraPartOnGUI;
             extraPartWidthOuter = extraPartWidth;
             this.extraPartOnGUI = DrawExtra;
+        }
+
+
+        /// <summary>
+        /// Creates a new sub-menu using the constructor with the same arguments, 
+        /// unless any mods known to be incompatible are detected. In that case 
+        /// creates a normal menu option that opens the sub-menu as a new menu when 
+        /// clicked.
+        /// </summary>
+        /// 
+        /// Currently this applies to: 
+        ///  - Vanilla UI Expanded with RimWorld 1.3
+        public static FloatMenuOption CompatCreate(string label,
+                                                   List<FloatMenuOption> subOptions,
+                                                   ThingDef shownItemForIcon,
+                                                   ThingStyleDef thingStyle = null,
+                                                   bool forceBasicStyle = false,
+                                                   MenuOptionPriority priority = MenuOptionPriority.Default,
+                                                   Thing revalidateClickTarget = null,
+                                                   float extraPartWidth = 0,
+                                                   Func<Rect, bool> extraPartOnGUI = null,
+                                                   WorldObject revalidateWorldClickTarget = null,
+                                                   bool playSelectionSound = true,
+                                                   int orderInPriority = 0,
+                                                   int? graphicIndexOverride = null) {
+            if (Compat) {
+                return new FloatMenuOption(
+                    label: label,
+                    action: CompatSub(subOptions),
+                    shownItemForIcon: shownItemForIcon,
+#if !VERSION_1_3
+                    thingStyle: thingStyle,
+                    forceBasicStyle: forceBasicStyle,
+#endif
+                    priority: priority,
+                    mouseoverGuiAction: null,
+                    revalidateClickTarget: revalidateClickTarget,
+                    extraPartWidth: extraPartWidth + ArrowExtraWidth,
+                    extraPartOnGUI: null,
+                    revalidateWorldClickTarget: revalidateWorldClickTarget,
+                    playSelectionSound: playSelectionSound,
+                    orderInPriority: orderInPriority
+#if !VERSION_1_3
+                    , graphicIndexOverride: graphicIndexOverride
+#endif
+                   );
+            } else {
+                return new FloatSubMenu(
+                    label,
+                    subOptions,
+                    shownItemForIcon,
+                    thingStyle,
+                    forceBasicStyle,
+                    priority,
+                    revalidateClickTarget,
+                    extraPartWidth,
+                    extraPartOnGUI,
+                    revalidateWorldClickTarget,
+                    playSelectionSound,
+                    orderInPriority,
+                    graphicIndexOverride);
+            }
+        }
+
+        /// <summary>
+        /// Creates a new sub-menu using the constructor with the same arguments, 
+        /// unless any mods known to be incompatible with sub-menues in the menu 
+        /// created by FloatMenuMakerMap are detected. In that case creates a normal 
+        /// menu option that opens the sub-menu as a new menu when clicked.
+        /// </summary>
+        /// 
+        /// Currently this applies to: 
+        ///  - Achtung!
+        ///  - Vanilla UI Expanded with RimWorld 1.3
+        public static FloatMenuOption CompatMMMCreate(string label,
+                                                      List<FloatMenuOption> subOptions,
+                                                      ThingDef shownItemForIcon,
+                                                      ThingStyleDef thingStyle = null,
+                                                      bool forceBasicStyle = false,
+                                                      MenuOptionPriority priority = MenuOptionPriority.Default,
+                                                      Thing revalidateClickTarget = null,
+                                                      float extraPartWidth = 0,
+                                                      Func<Rect, bool> extraPartOnGUI = null,
+                                                      WorldObject revalidateWorldClickTarget = null,
+                                                      bool playSelectionSound = true,
+                                                      int orderInPriority = 0,
+                                                      int? graphicIndexOverride = null) {
+            if (CompatMMM) {
+                return new FloatMenuOption(
+                    label: label,
+                    action: CompatSub(subOptions),
+                    shownItemForIcon: shownItemForIcon,
+#if !VERSION_1_3
+                    thingStyle: thingStyle,
+                    forceBasicStyle: forceBasicStyle,
+#endif
+                    priority: priority,
+                    mouseoverGuiAction: null,
+                    revalidateClickTarget: revalidateClickTarget,
+                    extraPartWidth: extraPartWidth,
+                    extraPartOnGUI: extraPartOnGUI,
+                    revalidateWorldClickTarget: revalidateWorldClickTarget,
+                    playSelectionSound: playSelectionSound,
+                    orderInPriority: orderInPriority
+#if !VERSION_1_3
+                    , graphicIndexOverride: graphicIndexOverride
+#endif
+                   );
+            } else {
+                return new FloatSubMenu(
+                    label,
+                    subOptions,
+                    shownItemForIcon,
+                    thingStyle,
+                    forceBasicStyle,
+                    priority,
+                    revalidateClickTarget,
+                    extraPartWidth,
+                    extraPartOnGUI,
+                    revalidateWorldClickTarget,
+                    playSelectionSound,
+                    orderInPriority,
+                    graphicIndexOverride);
+            }
         }
 
         public FloatSubMenu(string label,
@@ -93,6 +327,126 @@ namespace FloatSubMenus {
             extraPartOnGUIOuter = extraPartOnGUI;
             extraPartWidthOuter = extraPartWidth;
             this.extraPartOnGUI = DrawExtra;
+        }
+
+
+        /// <summary>
+        /// Creates a new sub-menu using the constructor with the same arguments, 
+        /// unless any mods known to be incompatible are detected. In that case 
+        /// creates a normal menu option that opens the sub-menu as a new menu when 
+        /// clicked.
+        /// </summary>
+        /// 
+        /// Currently this applies to: 
+        ///  - Vanilla UI Expanded with RimWorld 1.3
+        public static FloatMenuOption CompatCreate(string label,
+                                                   List<FloatMenuOption> subOptions,
+                                                   Texture2D itemIcon,
+                                                   Color iconColor,
+                                                   MenuOptionPriority priority = MenuOptionPriority.Default,
+                                                   Thing revalidateClickTarget = null,
+                                                   float extraPartWidth = 0,
+                                                   Func<Rect, bool> extraPartOnGUI = null,
+                                                   WorldObject revalidateWorldClickTarget = null,
+                                                   bool playSelectionSound = true,
+                                                   int orderInPriority = 0,
+                                                   HorizontalJustification iconJustification = HorizontalJustification.Left,
+                                                   bool extraPartRightJustified = false) {
+            if (Compat) {
+                return new FloatMenuOption(
+                    label: label,
+                    action: CompatSub(subOptions),
+                    itemIcon: itemIcon,
+                    iconColor: iconColor,
+                    priority: priority,
+                    mouseoverGuiAction: null,
+                    revalidateClickTarget: revalidateClickTarget,
+                    extraPartWidth: extraPartWidth,
+                    extraPartOnGUI: extraPartOnGUI,
+                    revalidateWorldClickTarget: revalidateWorldClickTarget,
+                    playSelectionSound: playSelectionSound,
+                    orderInPriority: orderInPriority
+#if !VERSION_1_3
+                    , iconJustification: iconJustification,
+                    extraPartRightJustified: extraPartRightJustified
+#endif
+                  );
+            } else {
+                return new FloatSubMenu(
+                    label,
+                    subOptions,
+                    itemIcon,
+                    iconColor,
+                    priority,
+                    revalidateClickTarget,
+                    extraPartWidth,
+                    extraPartOnGUI,
+                    revalidateWorldClickTarget,
+                    playSelectionSound,
+                    orderInPriority,
+                    iconJustification,
+                    extraPartRightJustified);
+            }
+        }
+
+        /// <summary>
+        /// Creates a new sub-menu using the constructor with the same arguments, 
+        /// unless any mods known to be incompatible with sub-menues in the menu 
+        /// created by FloatMenuMakerMap are detected. In that case creates a normal 
+        /// menu option that opens the sub-menu as a new menu when clicked.
+        /// </summary>
+        /// 
+        /// Currently this applies to: 
+        ///  - Achtung!
+        ///  - Vanilla UI Expanded with RimWorld 1.3
+        public static FloatMenuOption CompatMMMCreate(string label,
+                                                      List<FloatMenuOption> subOptions,
+                                                      Texture2D itemIcon,
+                                                      Color iconColor,
+                                                      MenuOptionPriority priority = MenuOptionPriority.Default,
+                                                      Thing revalidateClickTarget = null,
+                                                      float extraPartWidth = 0,
+                                                      Func<Rect, bool> extraPartOnGUI = null,
+                                                      WorldObject revalidateWorldClickTarget = null,
+                                                      bool playSelectionSound = true,
+                                                      int orderInPriority = 0,
+                                                      HorizontalJustification iconJustification = HorizontalJustification.Left,
+                                                      bool extraPartRightJustified = false) {
+            if (CompatMMM) {
+                return new FloatMenuOption(
+                    label: label,
+                    action: CompatSub(subOptions),
+                    itemIcon: itemIcon,
+                    iconColor: iconColor,
+                    priority: priority,
+                    mouseoverGuiAction: null,
+                    revalidateClickTarget: revalidateClickTarget,
+                    extraPartWidth: extraPartWidth,
+                    extraPartOnGUI: extraPartOnGUI,
+                    revalidateWorldClickTarget: revalidateWorldClickTarget,
+                    playSelectionSound: playSelectionSound,
+                    orderInPriority: orderInPriority
+#if !VERSION_1_3
+                    , iconJustification: iconJustification,
+                    extraPartRightJustified: extraPartRightJustified
+#endif
+                  );
+            } else {
+                return new FloatSubMenu(
+                    label,
+                    subOptions,
+                    itemIcon,
+                    iconColor,
+                    priority,
+                    revalidateClickTarget,
+                    extraPartWidth,
+                    extraPartOnGUI,
+                    revalidateWorldClickTarget,
+                    playSelectionSound,
+                    orderInPriority,
+                    iconJustification,
+                    extraPartRightJustified);
+            }
         }
 
         public FloatSubMenu(string label,
@@ -201,6 +555,17 @@ namespace FloatSubMenus {
                 return subOptions;
             }
         }
+
+        internal bool AnyMatches(Func<FloatMenuOption, bool> predicate, bool recursive) 
+            => subOptions.Any(x => predicate(x) || (recursive && SubAnyMatches(x, predicate)));
+
+        private bool SubAnyMatches(FloatMenuOption opt, Func<FloatMenuOption, bool> predicate) 
+            => opt is FloatSubMenu sub && sub.AnyMatches(predicate, true);
+
+        private FloatMenuFilter Filter => filter ?? (filter = new FloatMenuFilter());
+
+        internal void FilterSubMenu(Func<FloatMenuOption, bool> predicate, bool reset, bool recursive)
+            => Filter.Filter(predicate, reset, recursive);
 
         private static int OptionPriorityCmp(FloatMenuOption a, FloatMenuOption b) {
             // Should sort decending, so flipped order
@@ -354,21 +719,29 @@ namespace FloatSubMenus {
         }
 
         private class FloatSubMenuInner : FloatMenu {
-            public Vector2 MouseOffset;
+            public Vector2 mouseOffset;
             public FloatSubMenu parent;
 
-            public FloatSubMenuInner(FloatSubMenu parent, List<FloatMenuOption> options, Vector2 MouseOffset, bool vanish) : base(options) {
-                this.MouseOffset = MouseOffset;
+            public FloatSubMenuInner(FloatSubMenu parent, List<FloatMenuOption> options, Vector2 mouseOffset, bool vanish) 
+                    : base(options) {
+                this.mouseOffset = mouseOffset;
                 this.parent = parent;
                 onlyOneOfTypeAllowed = false;
                 vanishIfMouseDistant = vanish;
+                parent.Filter.Update(this);
+            }
+
+            public override void DoWindowContents(Rect rect) {
+                parent.Filter.Update(this);
+                base.DoWindowContents(rect);
             }
 
             protected override void SetInitialSizeAndPosition() {
-                Vector2 pos = UI.MousePositionOnUIInverted + MouseOffset;
-                float x = Mathf.Min(pos.x, UI.screenWidth - InitialSize.x);
-                float y = Mathf.Min(pos.y, UI.screenHeight - InitialSize.y);
-                windowRect = new Rect(x, y, InitialSize.x, InitialSize.y);
+                Vector2 pos = UI.MousePositionOnUIInverted + mouseOffset;
+                var size = InitialSize;
+                float x = Mathf.Min(pos.x, UI.screenWidth - size.x);
+                float y = Mathf.Min(pos.y, UI.screenHeight - size.y);
+                windowRect = new Rect(x, y, size.x, size.y);
             }
 
             public override void PreOptionChosen(FloatMenuOption opt) {
@@ -377,7 +750,7 @@ namespace FloatSubMenus {
             }
 
             public override void PreClose() {
-                foreach (FloatSubMenu sub in options.Where(o => o is FloatSubMenu)) {
+                foreach (var sub in options.OfType<FloatSubMenu>()) {
                     sub.CloseSubMenu();
                 }
                 OpenMenuSet.Close(this);
