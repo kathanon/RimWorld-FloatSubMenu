@@ -5,6 +5,8 @@
     <ModName>FloatSubMenu</ModName>
     <ModId>kathanon.FloatSubMenu</ModId>
     <MultiVersion>true</MultiVersion>
+    <CopyDLL>true</CopyDLL>
+    <RootNamespace>FloatSubMenus</RootNamespace>
   </PropertyGroup>
   <PropertyGroup>
     <Configuration Condition=" '$(Configuration)' == '' ">Release</Configuration>
@@ -55,6 +57,8 @@
   </ItemGroup>
   <!-- Project files -->
   <ItemGroup>
+    <Compile Include="ExtensionMethods.cs" />
+    <Compile Include="FloatMenuDivider.cs" />
     <Compile Include="FloatMenuFilter.cs" />
     <Compile Include="FloatMenuSearch.cs" />
     <Compile Include="Patches.cs" />

@@ -54,7 +54,8 @@
     <!-- Move DLL to correct subfolder and make sure mod is active in RimWorld -->
     <Message Text="Moving $(TargetFileName) -&gt; $(AssembliesSubDir)\$(TargetFileName)" Importance="high" />
     <MakeDir Directories="$(AssembliesDir)" />
-    <Move SourceFiles="$(TargetPath)" DestinationFolder="$(AssembliesDir)" />
+    <Move SourceFiles="$(TargetPath)" DestinationFolder="$(AssembliesDir)" Condition="'$(CopyDLL)' != 'true'" />
+    <Copy SourceFiles="$(TargetPath)" DestinationFolder="$(AssembliesDir)" Condition="'$(CopyDLL)' == 'true'" />
     <!-- Make sure mod is active in RimWorld -->
     <InsertLineIfNotPresent FilePath="$(ModsList)" BeforeLine="&lt;/activeMods&gt;" InsertLine="    &lt;li&gt;$(ModId.ToLower())&lt;/li&gt;" />
   </Target>
