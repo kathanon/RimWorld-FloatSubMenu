@@ -51,7 +51,7 @@ namespace FloatSubMenus {
         private const float ArrowAlpha = 0.6f;
 
         private static Action CompatSub(List<FloatMenuOption> subOption)
-            => () => Find.WindowStack.Add(new FloatMenu(subOption));
+            => () => subOption.OpenMenu();
 
 
         /// <summary>
@@ -106,6 +106,7 @@ namespace FloatSubMenus {
         /// </summary>
         /// 
         /// Currently this applies to: 
+        ///  - Achtung!
         ///  - Vanilla UI Expanded with RimWorld 1.3
         public static FloatMenuOption CompatMMMCreate(string label,
                                                       List<FloatMenuOption> subOptions,

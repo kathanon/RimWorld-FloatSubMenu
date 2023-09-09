@@ -57,13 +57,18 @@
   </ItemGroup>
   <!-- Project files -->
   <ItemGroup>
-    <Compile Include="ExtensionMethods.cs" />
-    <Compile Include="FloatMenuDivider.cs" />
-    <Compile Include="FloatMenuFilter.cs" />
-    <Compile Include="FloatMenuSearch.cs" />
-    <Compile Include="Patches.cs" />
+    <Compile Include="FloatSubMenu\ExtensionMethods.cs" />
+    <Compile Include="FloatSubMenu\FloatMenuDivider.cs" />
+    <Compile Include="FloatSubMenu\FloatMenuFilter.cs" />
+    <Compile Include="FloatSubMenu\FloatMenuSearch.cs" />
+    <Compile Include="FloatSubMenu\Patches.cs" />
+    <Compile Include="MoreWidgets\TooltipHandler2.cs" />
+    <Compile Include="MoreWidgets\Table2DWidget.cs" />
+    <Compile Include="MoreWidgets\TableWidget.cs" />
+    <Compile Include="MoreWidgets\ExtensionMethods.cs" />
+    <Compile Include="MoreWidgets\Widgets2.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
-    <Compile Include="FloatSubMenu.cs" />
+    <Compile Include="FloatSubMenu\FloatSubMenu.cs" />
     <None Include="packages.config" />
   </ItemGroup>
   <!-- Show ModFiles in solution explorer -->
