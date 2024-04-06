@@ -18,12 +18,16 @@ namespace FloatSubMenus {
         private readonly Traverse<float> heightField;
         private readonly float labelWidth;
         private readonly Vector2 size;
-
         private const float HorizMargin   =   3f;
         private const float VertMargin    =   1f;
         private const float MinLineLength =  10f;
         private const float MinWidth      = 100f;
         private const float MaxTextWidth  = 300f - 2 * HorizMargin;
+
+#if VERSION_1_3
+        private static readonly Color ColorBGActive = new ColorInt(21, 25, 29).ToColor;
+        private static readonly Color ColorTextDisabled = new Color(0.9f, 0.9f, 0.9f);
+#endif
 
         public FloatMenuDivider(string label = null) : base(" ", NoAction) {
             this.label = label;

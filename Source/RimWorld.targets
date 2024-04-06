@@ -5,7 +5,7 @@
     <Steam Condition="'$(Steam)' == ''">C:\Program Files\Steam</Steam>
     <RimWorld>$(Steam)\steamapps\common\RimWorld</RimWorld>
     <RimWorldDlls>$(RimWorld)\RimWorldWin64_Data\Managed</RimWorldDlls>
-    <RimWorldVersion Condition="'$(RimWorldVersion)' == ''">$([System.IO.File]::ReadAllText("$(RimWorld)\Version.txt").Substring(0,3))</RimWorldVersion>
+    <RimWorldVersion>$([System.IO.File]::ReadAllText("$(RimWorld)\Version.txt").Substring(0,3))</RimWorldVersion>
     <VersionConst>VERSION_$(RimWorldVersion.Replace(".","_"))</VersionConst>
     <DefineConstants>$(VersionConst)</DefineConstants>
     <ModsDir>$(RimWorld)\Mods</ModsDir>

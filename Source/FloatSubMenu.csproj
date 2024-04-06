@@ -5,7 +5,7 @@
     <ModName>FloatSubMenu</ModName>
     <ModId>kathanon.FloatSubMenu</ModId>
     <MultiVersion>true</MultiVersion>
-    <CopyDLL>true</CopyDLL>
+    <CopyDLL>false</CopyDLL>
     <RootNamespace>FloatSubMenus</RootNamespace>
   </PropertyGroup>
   <PropertyGroup>
@@ -62,6 +62,8 @@
     <Compile Include="FloatSubMenu\FloatMenuFilter.cs" />
     <Compile Include="FloatSubMenu\FloatMenuSearch.cs" />
     <Compile Include="FloatSubMenu\Patches.cs" />
+    <Compile Include="MoreWidgets\Confirmation.cs" />
+    <Compile Include="MoreWidgets\Patch_ShowCoords.cs" />
     <Compile Include="MoreWidgets\TooltipHandler2.cs" />
     <Compile Include="MoreWidgets\Table2DWidget.cs" />
     <Compile Include="MoreWidgets\TableWidget.cs" />
@@ -69,6 +71,7 @@
     <Compile Include="MoreWidgets\Widgets2.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="FloatSubMenu\FloatSubMenu.cs" />
+    <Compile Include="TextureTools\TextureExtensions.cs" />
     <None Include="packages.config" />
   </ItemGroup>
   <!-- Show ModFiles in solution explorer -->

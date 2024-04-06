@@ -66,13 +66,17 @@ namespace MoreWidgets {
         }
 
         public static void DoTooltipGUI() {
+#if !VERSION_1_3
             if (!CellInspectorDrawer.active) {
+#endif
                 DrawActiveTips();
                 if (Event.current.type == EventType.Repaint) {
                     CleanActiveTooltips();
                     frame++;
                 }
+#if !VERSION_1_3
             }
+#endif
         }
 
         private static void DrawActiveTips() {

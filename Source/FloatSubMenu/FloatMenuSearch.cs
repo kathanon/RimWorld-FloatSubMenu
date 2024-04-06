@@ -23,7 +23,9 @@ namespace FloatSubMenus {
         public FloatMenuSearch(bool subMenus = false) : base(" ", () => {}) {
             extraPartOnGUI = ExtraPart;
             extraPartWidth = Width;
+#if !VERSION_1_3
             extraPartRightJustified = true;
+#endif
             action = OnClicked;
 
             this.subMenus = subMenus;
@@ -34,7 +36,9 @@ namespace FloatSubMenus {
         }
 
         private void OnClicked() {
+#if !VERSION_1_3
             search.Focus();
+#endif
         }
 
         private void Filter() {

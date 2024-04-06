@@ -14,8 +14,11 @@ namespace FloatSubMenus {
                                 itemIcon: null,
                                iconColor: Color.white,
                           extraPartWidth: 30f,
-                          extraPartOnGUI: r => DrawPawn(r, pawn),
-                 extraPartRightJustified: true);
+                          extraPartOnGUI: r => DrawPawn(r, pawn)
+#if !VERSION_1_3
+               , extraPartRightJustified: true
+#endif
+                );
 
         public static FloatMenuOption MenuOption(this Pawn pawn, Action<Pawn> action, bool shortName = true) 
             => pawn.MenuOption(() => action(pawn), shortName);
