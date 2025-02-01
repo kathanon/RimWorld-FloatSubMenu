@@ -30,6 +30,7 @@ namespace MoreWidgets {
                                   params (string label, Action action)[] buttons) 
             => Find.WindowStack.Add(new Dialog(message, icon, buttons));
 
+
         private class Dialog : Window {
             private readonly string message;
             private readonly Texture2D icon;

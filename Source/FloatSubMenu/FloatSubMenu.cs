@@ -568,6 +568,9 @@ namespace FloatSubMenus {
         internal void FilterSubMenu(Func<FloatMenuOption, bool> predicate, bool reset, bool recursive)
             => Filter.Filter(predicate, reset, recursive);
 
+        internal void UpdateFilter(FloatMenu floatMenu)
+            => filter?.Update(floatMenu);
+
         private static int OptionPriorityCmp(FloatMenuOption a, FloatMenuOption b) {
             // Should sort decending, so flipped order
             int res = (int) b.Priority - (int) a.Priority;
@@ -729,11 +732,11 @@ namespace FloatSubMenus {
                 this.parent = parent;
                 onlyOneOfTypeAllowed = false;
                 vanishIfMouseDistant = vanish;
-                parent.Filter.Update(this);
+                parent.UpdateFilter(this);
             }
 
             public override void DoWindowContents(Rect rect) {
-                parent.Filter.Update(this);
+                parent.UpdateFilter(this);
                 base.DoWindowContents(rect);
             }
 

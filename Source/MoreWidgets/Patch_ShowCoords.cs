@@ -7,6 +7,7 @@ using Verse;
 using LudeonTK;
 #endif
 
+#if !VERSION_1_3
 namespace MoreWidgets {
     [HarmonyPatch]
     public static class Patch_ShowCoords {
@@ -82,3 +83,4 @@ namespace MoreWidgets {
         }
     }
 }
+#endif

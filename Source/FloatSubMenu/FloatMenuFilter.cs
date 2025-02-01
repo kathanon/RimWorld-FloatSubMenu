@@ -25,8 +25,10 @@ namespace FloatSubMenus {
         public void Filter(Func<FloatMenuOption, bool> predicate,
                            bool reset = false,
                            bool recursive = false) {
-            delayed = (predicate, reset, recursive);
-            if (initialized == null) return;
+            if (initialized == null) {
+                delayed = (predicate, reset, recursive);
+                return;
+            }
 
             filtered.Clear();
             foreach (var option in options) {
@@ -45,7 +47,7 @@ namespace FloatSubMenus {
             if (updateSize) UpdateSize(floatMenu, onResize);
         }
 
-        protected virtual void Init(FloatMenu floatMenu, Action action) {
+        protected void Init(FloatMenu floatMenu, Action action) {
             var listField = Traverse.Create(floatMenu).Field<List<FloatMenuOption>>("options");
             options = listField.Value;
             listField.Value = filtered = options.ToList();
@@ -53,10 +55,11 @@ namespace FloatSubMenus {
             action?.Invoke();
             if (delayed.predicate != null) {
                 Filter(delayed.predicate, delayed.reset, delayed.recursive);
+                delayed.predicate = null;
             }
         }
 
-        protected virtual void UpdateSize(FloatMenu floatMenu, Action action) {
+        protected void UpdateSize(FloatMenu floatMenu, Action action) {
             var mode = floatMenu.SizeMode;
             if (sizeMode != mode) {
                 options.ForEach(x => x.SetSizeMode(mode));
